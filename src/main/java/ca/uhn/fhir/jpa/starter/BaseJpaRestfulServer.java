@@ -57,6 +57,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
+
+import io.floodplain.hapi.cdc.impl.FHIRCDCChangeListener;
 import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -115,6 +117,9 @@ public class BaseJpaRestfulServer extends RestfulServer {
 
   @Autowired
   private IValidationSupport myValidationSupport;
+
+  @Autowired
+  private FHIRCDCChangeListener changeListener;
 
   public BaseJpaRestfulServer() {
   }
@@ -233,6 +238,8 @@ public class BaseJpaRestfulServer extends RestfulServer {
     ResponseHighlighterInterceptor responseHighlighterInterceptor = new ResponseHighlighterInterceptor();
     this.registerInterceptor(responseHighlighterInterceptor);
 
+    this.registerInterceptor(changeListener)
+	 ;
     if (appProperties.getFhirpath_interceptor_enabled()) {
       registerInterceptor(new FhirPathFilterInterceptor());
     }

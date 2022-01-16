@@ -1,3 +1,6 @@
+floodplain:
+  kafka:
+    enabled: true
 spring:
   main:
     allow-circular-references: true
@@ -6,6 +9,16 @@ spring:
     enabled: false
     check-location: false
     baselineOnMigrate: true
+  kafka:
+    bootstrap-servers: localhost:31000
+    consumer: #consumer is not needed here (system-fhir only writes to kafka)
+      group-id: group_id
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
   datasource:
     url: 'jdbc:h2:file:./target/database/h2'
     #url: jdbc:h2:mem:test_mem
