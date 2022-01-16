@@ -6,11 +6,14 @@ import ca.uhn.fhir.jpa.subscription.channel.config.SubscriptionChannelConfig;
 import ca.uhn.fhir.jpa.subscription.match.config.SubscriptionProcessorConfig;
 import ca.uhn.fhir.jpa.subscription.match.config.WebsocketDispatcherConfig;
 import ca.uhn.fhir.jpa.subscription.submit.config.SubscriptionSubmitterConfig;
+import io.floodplain.hapi.cdc.FHIRChangeCaptureConfiguration;
+import io.floodplain.hapi.cdc.impl.FHIRSnapshot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -24,7 +27,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 @ServletComponentScan(basePackageClasses = {
   JpaRestfulServer.class})
 @SpringBootApplication(exclude = {ElasticsearchRestClientAutoConfiguration.class})
-@Import({SubscriptionSubmitterConfig.class, SubscriptionProcessorConfig.class, SubscriptionChannelConfig.class, WebsocketDispatcherConfig.class, MdmConfig.class})
+@Import({SubscriptionSubmitterConfig.class, SubscriptionProcessorConfig.class, SubscriptionChannelConfig.class, WebsocketDispatcherConfig.class, MdmConfig.class, FHIRChangeCaptureConfiguration.class, KafkaAutoConfiguration.class})
 public class Application extends SpringBootServletInitializer {
 
   public static void main(String[] args) {
@@ -56,6 +59,17 @@ public class Application extends SpringBootServletInitializer {
 
     return servletRegistrationBean;
   }
+
+	@Bean
+	public ServletRegistrationBean snapshotRegistration() {
+		ServletRegistrationBean servletRegistrationBean = new ServletRegistrationBean();
+		FHIRSnapshot snapshot = new FHIRSnapshot();
+		beanFactory.autowireBean(snapshot);
+		servletRegistrationBean.setServlet(snapshot);
+		servletRegistrationBean.addUrlMappings("/snapshot/*");
+		servletRegistrationBean.setLoadOnStartup(1);
+		return servletRegistrationBean;
+	}
 
   @Bean
   public ServletRegistrationBean overlayRegistrationBean() {
