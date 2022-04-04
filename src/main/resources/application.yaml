@@ -10,7 +10,7 @@ spring:
     check-location: false
     baselineOnMigrate: true
   kafka:
-    bootstrap-servers: localhost:31000
+    bootstrap-servers: localhost:9092
     consumer: #consumer is not needed here (system-fhir only writes to kafka)
       group-id: group_id
       auto-offset-reset: earliest
